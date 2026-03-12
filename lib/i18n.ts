@@ -19,6 +19,8 @@ export const translations = {
     resetView: 'Reset View',
     share: 'Share',
     about: 'About',
+    randomDiscovery: 'Random',
+    market: 'Market',
     
     // Filters
     filters: 'Filters',
@@ -70,6 +72,7 @@ export const translations = {
     searchPlaceholder: '搜索智能体、城市或国家...',
     noResults: '未找到匹配的智能体',
     randomDiscovery: '随机发现',
+    market: '市场',
     
     // View controls
     global: '全球',

@@ -49,6 +49,14 @@ export default function SkillsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [lang, setLang] = useState<'en' | 'zh'>('zh');
 
+  // 检测语言 from URL
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('lang') === 'en') setLang('en');
+    }
+  }, []);
+
   const isZh = lang === 'zh';
 
   const filteredSkills = skills.filter(skill => {
@@ -89,16 +97,6 @@ export default function SkillsPage() {
             </div>
             
             <div className="flex items-center gap-3">
-              <button
-                onClick={() => setLang(lang === 'en' ? 'zh' : 'en')}
-                className="px-3 py-1.5 text-xs bg-white/10 rounded-lg hover:bg-white/20 transition-colors"
-              >
-                {isZh ? 'EN' : '中'}
-              </button>
-              <div className="px-3 py-1.5 bg-white/5 rounded-lg border border-white/10">
-                <span className="text-sm font-bold text-[#00FF00]">{skills.length}</span>
-                <span className="text-white/50 ml-1 text-xs">Skills</span>
-              </div>
             </div>
           </div>
         </div>

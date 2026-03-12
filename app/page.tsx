@@ -157,7 +157,7 @@ export default function AgentGlobePage() {
           onReset={handleReset}
           onShare={() => setShowShareModal(true)}
           onInfo={() => setShowInfoModal(true)}
-          onMarket={() => window.location.href = '/skills'}
+          onMarket={() => window.location.href = '/skills?lang=' + language}
           onRandom={handleRandomDiscovery}
           isRandomizing={isRandomizing}
           t={t}
