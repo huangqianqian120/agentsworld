@@ -69,6 +69,7 @@ export const translations = {
     // Search
     searchPlaceholder: '搜索智能体、城市或国家...',
     noResults: '未找到匹配的智能体',
+    randomDiscovery: '随机发现',
     
     // View controls
     global: '全球',

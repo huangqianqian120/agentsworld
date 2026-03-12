@@ -11,6 +11,7 @@ import { ShareModal } from '@/components/modals/share-modal';
 import { agents as allAgents, type Agent } from '@/lib/agents-data';
 import { translations, type Language } from '@/lib/i18n';
 import { BGMPlayer } from '@/components/bgm-player';
+import { Shuffle, Sparkles } from 'lucide-react';
 
 export default function AgentGlobePage() {
   // Client-side mounting state to prevent hydration mismatch
@@ -30,6 +31,7 @@ export default function AgentGlobePage() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
+  const [isRandomizing, setIsRandomizing] = useState(false);
 
   // All agents (no filtering)
   const agentList = allAgents;
@@ -58,6 +60,38 @@ export default function AgentGlobePage() {
     const newView = continentViewMap[agent.continent] || 'default';
     setViewPreset(newView);
   }, []);
+
+  const handleRandomDiscovery = useCallback(() => {
+    setIsRandomizing(true);
+    
+    // Random animation effect
+    let count = 0;
+    const interval = setInterval(() => {
+      const randomAgent = agentList[Math.floor(Math.random() * agentList.length)];
+      setHoveredAgent(randomAgent);
+      count++;
+      
+      if (count > 8) {
+        clearInterval(interval);
+        const finalAgent = agentList[Math.floor(Math.random() * agentList.length)];
+        setSelectedAgent(finalAgent);
+        setHoveredAgent(null);
+        setIsRandomizing(false);
+        
+        // Fly to the agent's location
+        const continentViewMap: Record<string, ViewPreset> = {
+          'Europe': 'europe',
+          'Asia': 'asia',
+          'North America': 'americas',
+          'South America': 'americas',
+          'Africa': 'africa',
+          'Oceania': 'oceania',
+        };
+        const newView = continentViewMap[finalAgent.continent] || 'default';
+        setViewPreset(newView);
+      }
+    }, 150);
+  }, [agentList]);
 
   const handleReset = useCallback(() => {
     setViewPreset('default');
@@ -109,8 +143,25 @@ export default function AgentGlobePage() {
           </div>
 
           <div className="flex items-center gap-3 w-full md:w-auto">
-            {/* Search Bar */}
-            <div className="flex-1 md:w-auto">
+            {/* Random Discovery Button */}
+            <button
+              onClick={handleRandomDiscovery}
+              disabled={isRandomizing}
+              className={`
+                flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm
+                transition-all duration-300 border
+                ${isRandomizing 
+                  ? 'bg-[#00FF00]/20 border-[#00FF00]/50 text-[#00FF00] cursor-wait' 
+                  : 'bg-black/80 border-[#00FF00]/30 text-[#00FF00] hover:bg-[#00FF00]/10 hover:border-[#00FF00]/50'
+                }
+              `}
+            >
+              <Sparkles className={`w-4 h-4 ${isRandomizing ? 'animate-spin' : ''}`} />
+              {isRandomizing ? '发现中...' : '随机发现'}
+            </button>
+
+            {/* Search Bar - smaller now */}
+            <div className="flex-1 md:w-auto hidden md:block">
               <SearchBar 
                 agents={allAgents}
                 onSelect={handleSearchSelect}
@@ -150,9 +201,17 @@ export default function AgentGlobePage() {
           >
             关于
           </button>
+          <button
+            onClick={handleRandomDiscovery}
+            disabled={isRandomizing}
+            className="flex items-center gap-1 px-3 py-2 text-sm text-[#00FF00] hover:text-[#00FF00]/70 transition-colors"
+          >
+            <Sparkles className="w-4 h-4" />
+            随机
+          </button>
           <div className="flex items-center gap-1 text-sm">
             <span className="text-primary font-medium">{agentList.length}</span>
-            <span className="text-muted-foreground">个智能体</span>
+            <span className="text-muted-foreground">个</span>
           </div>
           <button
             onClick={() => setShowShareModal(true)}
