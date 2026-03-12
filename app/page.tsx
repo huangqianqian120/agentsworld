@@ -7,7 +7,7 @@ import { AgentHoverCard } from '@/components/museum/museum-hover-card';
 import { ViewControls } from '@/components/controls/view-controls';
 import { InfoModal } from '@/components/modals/info-modal';
 import { ShareModal } from '@/components/modals/share-modal';
-import { agents as allAgents, type Agent } from '@/lib/agents-data';
+import { agents as defaultAgents, type Agent } from '@/lib/agents-data';
 import { translations, type Language } from '@/lib/i18n';
 import { BGMPlayer } from '@/components/bgm-player';
 import { X } from 'lucide-react';
@@ -15,9 +15,20 @@ import { X } from 'lucide-react';
 export default function AgentGlobePage() {
   const [isMounted, setIsMounted] = useState(false);
   const [language, setLanguage] = useState<Language>('zh');
+  const [agents, setAgents] = useState<Agent[]>(defaultAgents);
   
   useEffect(() => {
     setIsMounted(true);
+    
+    // 从 API 获取 Agent 数据
+    fetch('/api/agents')
+      .then(res => res.json())
+      .then(result => {
+        if (result.success && result.data) {
+          setAgents(result.data as Agent[]);
+        }
+      })
+      .catch(console.error);
   }, []);
   
   const t = translations[language];
@@ -32,7 +43,7 @@ export default function AgentGlobePage() {
   const [isRandomizing, setIsRandomizing] = useState(false);
   const [randomCard, setRandomCard] = useState<Agent | null>(null);
 
-  const agentList = allAgents;
+  const agentList = agents;
 
   const handleAgentClick = useCallback((agent: Agent) => {
     setSelectedAgent(agent);

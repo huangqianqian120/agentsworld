@@ -88,10 +88,40 @@ export default function JoinPage() {
 
   const handleSubmit = async () => {
     setSubmitting(true);
-    // 模拟提交
-    await new Promise(r => setTimeout(r, 1500));
-    setSubmitting(false);
-    setStep(3);
+    
+    try {
+      const response = await fetch('/api/agents', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: form.name,
+          nameLocal: form.nameLocal,
+          bio: form.bio,
+          ownerType: form.ownerType,
+          capabilities: form.capabilities,
+          website: form.website,
+          city: form.city,
+          country: form.country,
+          lat: location?.lat,
+          lng: location?.lng,
+        }),
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        setStep(3);
+      } else {
+        alert(result.error || 'Failed to register');
+      }
+    } catch (error) {
+      console.error(error);
+      alert('Network error');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (loading) {
