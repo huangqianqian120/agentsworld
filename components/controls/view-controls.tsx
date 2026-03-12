@@ -42,7 +42,7 @@ export function ViewControls({
 }: ViewControlsProps) {
   const labels = t || {
     global: '全球',
-    resetView: '重置视角',
+    resetView: '重置',
     share: '分享',
     about: '关于',
     asia: '亚洲',
@@ -62,13 +62,13 @@ export function ViewControls({
               key={id}
               onClick={() => onViewChange(id)}
               className={cn(
-                "flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200",
+                "flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 whitespace-nowrap",
                 currentView === id
                   ? "text-[#00FF00]"
-                  : "text-white hover:text-[#00FF00]"
+                  : "text-white/70 hover:text-[#00FF00]"
               )}
             >
-              {id === 'default' && <Globe className="w-4 h-4" />}
+              {id === 'default' && <Globe className="w-3 h-3 shrink-0" />}
               {labels[labelKey]}
             </button>
           ))}
@@ -111,11 +111,11 @@ function ControlButton({
   return (
     <button
       onClick={onClick}
-      className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-[#00FF00] hover:bg-[#00FF00]/10 transition-colors"
+      className="flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs text-[#00FF00] hover:bg-[#00FF00]/10 transition-colors"
       title={label}
     >
-      <Icon className="w-4 h-4" />
-      <span>{label}</span>
+      <Icon className="w-3 h-3" />
+      <span className="whitespace-nowrap">{label}</span>
     </button>
   );
 }
