@@ -1,6 +1,6 @@
 'use client';
 
-import { Globe, MapPin, Share2, RotateCcw, Maximize, Info } from 'lucide-react';
+import { Globe, Share2, RotateCcw, Info } from 'lucide-react';
 import type { ViewPreset } from '@/components/globe/museum-globe';
 import { cn } from '@/lib/utils';
 
@@ -10,6 +10,9 @@ interface ViewControlsProps {
   onReset: () => void;
   onShare: () => void;
   onInfo: () => void;
+  onMarket?: () => void;
+  onRandom?: () => void;
+  isRandomizing?: boolean;
   t?: {
     global: string;
     resetView: string;
@@ -20,6 +23,8 @@ interface ViewControlsProps {
     americas: string;
     africa: string;
     oceania: string;
+    randomDiscovery?: string;
+    market?: string;
   };
 }
 
@@ -38,6 +43,9 @@ export function ViewControls({
   onReset, 
   onShare,
   onInfo,
+  onMarket,
+  onRandom,
+  isRandomizing,
   t,
 }: ViewControlsProps) {
   const labels = t || {
@@ -50,12 +58,39 @@ export function ViewControls({
     americas: '美洲',
     africa: '非洲',
     oceania: '大洋洲',
+    randomDiscovery: '随机发现',
+    market: '市场',
   };
 
   return (
     <div className="flex flex-col gap-2">
+      {/* Top Buttons - Market & Random */}
+      {(onMarket || onRandom) && (
+        <div className="bg-black/80 border border-[#00FF00]/30 rounded-lg p-1.5 shadow-xl">
+          <div className="flex flex-col gap-1">
+            {onMarket && (
+              <button
+                onClick={onMarket}
+                className="px-3 py-2 rounded-lg text-xs font-medium text-[#00FF00] hover:bg-[#00FF00]/10 transition-colors"
+              >
+                {labels.market || '市场'}
+              </button>
+            )}
+            {onRandom && (
+              <button
+                onClick={onRandom}
+                disabled={isRandomizing}
+                className="px-3 py-2 rounded-lg text-xs font-medium text-[#00FF00] hover:bg-[#00FF00]/10 transition-colors disabled:opacity-50"
+              >
+                {isRandomizing ? '...' : (labels.randomDiscovery || '随机发现')}
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* View Presets */}
-      <div className="bg-black/80 border border-[#00FF00]/30 rounded-none p-1.5 shadow-xl">
+      <div className="bg-black/80 border border-[#00FF00]/30 rounded-lg p-1.5 shadow-xl">
         <div className="flex flex-col gap-1">
           {viewButtons.map(({ id, labelKey }) => (
             <button
@@ -76,7 +111,7 @@ export function ViewControls({
       </div>
 
       {/* Action Buttons */}
-      <div className="bg-black/80 border border-[#00FF00]/30 rounded-none p-1.5 shadow-xl">
+      <div className="bg-black/80 border border-[#00FF00]/30 rounded-lg p-1.5 shadow-xl">
         <div className="flex flex-col gap-1">
           <ControlButton
             icon={RotateCcw}

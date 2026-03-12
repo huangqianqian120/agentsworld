@@ -10,10 +10,9 @@ import { ShareModal } from '@/components/modals/share-modal';
 import { agents as allAgents, type Agent } from '@/lib/agents-data';
 import { translations, type Language } from '@/lib/i18n';
 import { BGMPlayer } from '@/components/bgm-player';
-import { Sparkles } from 'lucide-react';
+import { X } from 'lucide-react';
 
 export default function AgentGlobePage() {
-  // Client-side mounting state to prevent hydration mismatch
   const [isMounted, setIsMounted] = useState(false);
   const [language, setLanguage] = useState<Language>('zh');
   
@@ -31,14 +30,14 @@ export default function AgentGlobePage() {
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const [isRandomizing, setIsRandomizing] = useState(false);
+  const [randomCard, setRandomCard] = useState<Agent | null>(null);
 
-  // All agents (no filtering)
   const agentList = allAgents;
 
-  // Handlers
   const handleAgentClick = useCallback((agent: Agent) => {
     setSelectedAgent(agent);
     setHoveredAgent(null);
+    setRandomCard(null);
   }, []);
 
   const handleAgentHover = useCallback((agent: Agent | null) => {
@@ -47,7 +46,6 @@ export default function AgentGlobePage() {
 
   const handleSearchSelect = useCallback((agent: Agent) => {
     setSelectedAgent(agent);
-    // Set view to the agent's continent
     const continentViewMap: Record<string, ViewPreset> = {
       'Europe': 'europe',
       'Asia': 'asia',
@@ -62,22 +60,20 @@ export default function AgentGlobePage() {
 
   const handleRandomDiscovery = useCallback(() => {
     setIsRandomizing(true);
+    setRandomCard(null);
     
-    // Random animation effect
     let count = 0;
     const interval = setInterval(() => {
       const randomAgent = agentList[Math.floor(Math.random() * agentList.length)];
-      setHoveredAgent(randomAgent);
+      setRandomCard(randomAgent);
       count++;
       
-      if (count > 8) {
+      if (count > 5) {
         clearInterval(interval);
-        const finalAgent = agentList[Math.floor(Math.random() * agentList.length)];
-        setSelectedAgent(finalAgent);
-        setHoveredAgent(null);
         setIsRandomizing(false);
+        const finalAgent = agentList[Math.floor(Math.random() * agentList.length)];
+        setRandomCard(finalAgent);
         
-        // Fly to the agent's location
         const continentViewMap: Record<string, ViewPreset> = {
           'Europe': 'europe',
           'Asia': 'asia',
@@ -89,19 +85,21 @@ export default function AgentGlobePage() {
         const newView = continentViewMap[finalAgent.continent] || 'default';
         setViewPreset(newView);
       }
-    }, 150);
+    }, 200);
   }, [agentList]);
+
+  const closeRandomCard = useCallback(() => {
+    setRandomCard(null);
+  }, []);
 
   const handleReset = useCallback(() => {
     setViewPreset('default');
   }, []);
 
-  // Track mouse position for hover card
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
     setMousePosition({ x: e.clientX, y: e.clientY });
   }, []);
 
-  // Show loading state during SSR to prevent hydration mismatch
   if (!isMounted) {
     return (
       <main className="relative w-screen h-screen overflow-hidden bg-background flex items-center justify-center">
@@ -131,7 +129,6 @@ export default function AgentGlobePage() {
       {/* Header */}
       <header className="absolute top-0 left-0 right-0 z-10 p-4 md:p-6">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-          {/* Title */}
           <div className="bg-[#00FF00] px-4 py-2">
             <h1 className="text-lg md:text-xl font-bold text-black leading-tight">
               {t.title}
@@ -142,38 +139,9 @@ export default function AgentGlobePage() {
           </div>
 
           <div className="flex items-center gap-3 w-full md:w-auto">
-            {/* Skills Market Button */}
-            <button
-              onClick={() => window.location.href = '/skills'}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm
-                bg-[#00FF00]/10 border border-[#00FF00]/30 text-[#00FF00] 
-                hover:bg-[#00FF00]/20 hover:border-[#00FF00]/50 transition-all duration-300"
-            >
-              <Sparkles className="w-4 h-4" />
-              市场
-            </button>
-
-            {/* Random Discovery Button */}
-            <button
-              onClick={handleRandomDiscovery}
-              disabled={isRandomizing}
-              className={`
-                flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm
-                transition-all duration-300 border
-                ${isRandomizing 
-                  ? 'bg-[#00FF00]/20 border-[#00FF00]/50 text-[#00FF00] cursor-wait' 
-                  : 'bg-black/80 border-[#00FF00]/30 text-[#00FF00] hover:bg-[#00FF00]/10 hover:border-[#00FF00]/50'
-                }
-              `}
-            >
-              <Sparkles className={`w-4 h-4 ${isRandomizing ? 'animate-spin' : ''}`} />
-              {isRandomizing ? '发现中...' : '随机发现'}
-            </button>
-
-            {/* Language Toggle */}
             <button
               onClick={() => setLanguage(language === 'en' ? 'zh' : 'en')}
-              className="px-2 py-2 text-sm font-medium text-[#00FF00] hover:text-[#00FF00]/70 transition-colors"
+              className="px-2 py-2 text-xs font-medium text-[#00FF00] hover:text-[#00FF00]/70 transition-colors"
             >
               {language === 'en' ? '中/英' : 'EN/中'}
             </button>
@@ -189,9 +157,64 @@ export default function AgentGlobePage() {
           onReset={handleReset}
           onShare={() => setShowShareModal(true)}
           onInfo={() => setShowInfoModal(true)}
+          onMarket={() => window.location.href = '/skills'}
+          onRandom={handleRandomDiscovery}
+          isRandomizing={isRandomizing}
           t={t}
         />
       </aside>
+
+      {/* Random Card - Floating in center */}
+      {randomCard && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
+             onClick={closeRandomCard}>
+          <div 
+            className="relative w-full max-w-md bg-black/90 border border-[#00FF00]/50 rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={closeRandomCard}
+              className="absolute top-4 right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors z-10"
+            >
+              <X className="w-4 h-4 text-white" />
+            </button>
+            
+            <div className="p-6">
+              <div className="flex items-center gap-4 mb-4">
+                <div className="w-16 h-16 rounded-2xl bg-[#00FF00] flex items-center justify-center text-3xl shadow-lg shadow-[#00FF00]/30">
+                  {randomCard.name.charAt(0)}
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-white">
+                    {randomCard.nameLocal || randomCard.name}
+                  </h2>
+                  <p className="text-sm text-white/60">{randomCard.city}, {randomCard.country}</p>
+                </div>
+              </div>
+              
+              <p className="text-sm text-white/80 mb-4">{randomCard.description}</p>
+              
+              <div className="flex flex-wrap gap-2 mb-4">
+                {randomCard.capabilities.slice(0, 4).map((cap: string) => (
+                  <span key={cap} className="px-2 py-1 text-xs bg-[#00FF00]/20 text-[#00FF00] rounded-full">
+                    {cap}
+                  </span>
+                ))}
+              </div>
+              
+              <button
+                onClick={() => {
+                  handleAgentClick(randomCard);
+                  closeRandomCard();
+                }}
+                className="w-full py-3 bg-[#00FF00] text-black font-bold rounded-xl hover:bg-[#00DD00] transition-colors"
+              >
+                查看详情
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Mobile Controls */}
       <div className="absolute bottom-4 left-4 right-4 z-10 md:hidden">
@@ -205,10 +228,9 @@ export default function AgentGlobePage() {
           <button
             onClick={handleRandomDiscovery}
             disabled={isRandomizing}
-            className="flex items-center gap-1 px-3 py-2 text-sm text-[#00FF00] hover:text-[#00FF00]/70 transition-colors"
+            className="px-3 py-2 text-sm text-[#00FF00] font-medium"
           >
-            <Sparkles className="w-4 h-4" />
-            随机
+            {isRandomizing ? '...' : '随机'}
           </button>
           <div className="flex items-center gap-1 text-sm">
             <span className="text-primary font-medium">{agentList.length}</span>
@@ -223,15 +245,13 @@ export default function AgentGlobePage() {
         </div>
       </div>
 
-      {/* Hover Card */}
-      {hoveredAgent && !selectedAgent && (
+      {hoveredAgent && !selectedAgent && !randomCard && (
         <AgentHoverCard
           agent={hoveredAgent}
           position={mousePosition}
         />
       )}
 
-      {/* Detail Card Modal */}
       {selectedAgent && (
         <AgentDetailCard
           agent={selectedAgent}
@@ -239,21 +259,17 @@ export default function AgentGlobePage() {
         />
       )}
 
-      {/* Info Modal */}
       {showInfoModal && (
         <InfoModal onClose={() => setShowInfoModal(false)} />
       )}
 
-      {/* Share Modal */}
       {showShareModal && (
         <ShareModal onClose={() => setShowShareModal(false)} />
       )}
 
-      {/* Gradient Overlays for depth */}
       <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background/80 to-transparent pointer-events-none" />
       <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-background/60 to-transparent pointer-events-none" />
 
-      {/* BGM Player - cosmic piano music */}
       <BGMPlayer src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-16.mp3" />
     </main>
   );
