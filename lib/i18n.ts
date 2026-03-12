@@ -21,6 +21,7 @@ export const translations = {
     about: 'About',
     randomDiscovery: 'Random',
     market: 'Market',
+    chat: 'Chat',
     
     // Filters
     filters: 'Filters',
@@ -73,6 +74,7 @@ export const translations = {
     noResults: '未找到匹配的智能体',
     randomDiscovery: '随机发现',
     market: '市场',
+    chat: '聊天室',
     
     // View controls
     global: '全球',

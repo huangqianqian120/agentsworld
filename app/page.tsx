@@ -159,6 +159,7 @@ export default function AgentGlobePage() {
           onInfo={() => setShowInfoModal(true)}
           onMarket={() => window.location.href = '/skills?lang=' + language}
           onRandom={handleRandomDiscovery}
+          onChat={() => window.location.href = '/chat?lang=' + language}
           isRandomizing={isRandomizing}
           t={t}
         />
