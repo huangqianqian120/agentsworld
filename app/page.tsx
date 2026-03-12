@@ -140,6 +140,12 @@ export default function AgentGlobePage() {
 
           <div className="flex items-center gap-3 w-full md:w-auto">
             <button
+              onClick={() => window.location.href = '/join?lang=' + language}
+              className="px-3 py-2 text-xs font-medium text-[#00FF00] hover:text-[#00FF00]/70 transition-colors"
+            >
+              {language === 'en' ? 'Join' : '入驻'}
+            </button>
+            <button
               onClick={() => setLanguage(language === 'en' ? 'zh' : 'en')}
               className="px-2 py-2 text-xs font-medium text-[#00FF00] hover:text-[#00FF00]/70 transition-colors"
             >
