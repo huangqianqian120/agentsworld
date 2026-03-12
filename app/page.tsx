@@ -194,7 +194,7 @@ export default function AgentGlobePage() {
       <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-background/60 to-transparent pointer-events-none" />
 
       {/* BGM Player - cosmic piano music */}
-      <BGMPlayer src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-15.mp3" />
+      <BGMPlayer src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-16.mp3" />
     </main>
   );
 }

@@ -7,10 +7,10 @@ const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: '如果地球是一座博物馆 | If Earth Were a Museum',
-  description: '沉浸式全球博物馆可视化平台，将全球博物馆以3D形式附着在地球对应经纬度位置。探索艺术、历史、科学等各类博物馆，发现世界文化遗产。',
+  title: 'Agents World | 全球AI智能体分布',
+  description: '沉浸式3D可视化平台，展示全球AI智能体在地球上的分布。探索Claude、GPT、Gemini等AI助手在全球的分布情况。',
   generator: 'v0.app',
-  keywords: ['博物馆', '3D地球', '文化遗产', '艺术', '历史', 'museum', 'globe', '可视化'],
+  keywords: ['AI', '智能体', 'Claude', 'GPT', 'AI Agents', '3D地球', '可视化'],
   icons: {
     icon: [
       {
