@@ -4,14 +4,13 @@ import { useState, useCallback, useEffect } from 'react';
 import { AgentGlobe, type ViewPreset } from '@/components/globe/museum-globe';
 import { AgentDetailCard } from '@/components/museum/museum-detail-card';
 import { AgentHoverCard } from '@/components/museum/museum-hover-card';
-import { SearchBar } from '@/components/search/search-bar';
 import { ViewControls } from '@/components/controls/view-controls';
 import { InfoModal } from '@/components/modals/info-modal';
 import { ShareModal } from '@/components/modals/share-modal';
 import { agents as allAgents, type Agent } from '@/lib/agents-data';
 import { translations, type Language } from '@/lib/i18n';
 import { BGMPlayer } from '@/components/bgm-player';
-import { Shuffle, Sparkles } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 
 export default function AgentGlobePage() {
   // Client-side mounting state to prevent hydration mismatch
@@ -159,15 +158,6 @@ export default function AgentGlobePage() {
               <Sparkles className={`w-4 h-4 ${isRandomizing ? 'animate-spin' : ''}`} />
               {isRandomizing ? '发现中...' : '随机发现'}
             </button>
-
-            {/* Search Bar - smaller now */}
-            <div className="flex-1 md:w-auto hidden md:block">
-              <SearchBar 
-                agents={allAgents}
-                onSelect={handleSearchSelect}
-                placeholder={t.searchPlaceholder}
-              />
-            </div>
 
             {/* Language Toggle */}
             <button
