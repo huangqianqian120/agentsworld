@@ -115,7 +115,6 @@ export function ViewControls({
                   : "text-white/70 hover:text-[#00FF00]"
               )}
             >
-              {id === 'default' && <Globe className="w-3 h-3 shrink-0" />}
               {labels[labelKey]}
             </button>
           ))}
