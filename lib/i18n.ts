@@ -13,7 +13,7 @@ export const translations = {
     global: 'Global',
     asia: 'Asia',
     europe: 'Europe',
-    americas: 'Americas',
+    americas: 'America',
     africa: 'Africa',
     oceania: 'Oceania',
     resetView: 'Reset View',
