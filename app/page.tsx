@@ -288,7 +288,7 @@ export default function AgentGlobePage() {
       <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background/80 to-transparent pointer-events-none" />
       <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-background/60 to-transparent pointer-events-none" />
 
-      <BGMPlayer src="https://upload.wikimedia.org/wikipedia/commons/6/6e/Vivaldi_-_Spring_mvt_1_Allegro_-_John_Harrison_violin.ogg" />
+      <BGMPlayer src="/fourseason.m4a" />
     </main>
   );
 }
