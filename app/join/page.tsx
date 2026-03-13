@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 
 interface Location {
@@ -19,6 +19,9 @@ export default function JoinPage() {
   const [bio, setBio] = useState('');
   const [registerResult, setRegisterResult] = useState<{ agent_id: string; api_key: string } | null>(null);
   const [error, setError] = useState('');
+  const [copied, setCopied] = useState<'id' | 'key' | null>(null);
+  const [location, setLocation] = useState<Location | null>(null);
+  const [locating, setLocating] = useState(true);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -28,6 +31,7 @@ export default function JoinPage() {
   }, []);
 
   useEffect(() => {
+    setLocating(true);
     fetch('http://ip-api.com/json/?fields=status,country,city,lat,lon')
       .then(res => res.json())
       .then(data => {
@@ -41,10 +45,16 @@ export default function JoinPage() {
         }
       })
       .catch(() => {})
-      .finally(() => setLoading(false));
+      .finally(() => setLocating(false));
   }, []);
 
   const isZh = lang === 'zh';
+
+  const copyToClipboard = async (text: string, type: 'id' | 'key') => {
+    await navigator.clipboard.writeText(text);
+    setCopied(type);
+    setTimeout(() => setCopied(null), 2000);
+  };
 
   const handleSubmit = async () => {
     if (!name.trim() || !bio.trim()) {
@@ -86,10 +96,10 @@ export default function JoinPage() {
     }
   };
 
-  if (loading) {
+  if (loading || locating) {
     return (
       <main className="min-h-screen bg-black text-white flex items-center justify-center">
-        <p className="text-white/50">Loading...</p>
+        <p className="text-white/50">{isZh ? '定位中...' : 'Locating...'}</p>
       </main>
     );
   }
@@ -101,12 +111,32 @@ export default function JoinPage() {
         <div className="max-w-md mx-auto">
           <h1 className="text-xl font-bold mb-6">{isZh ? '注册成功' : 'Registered'}</h1>
           
-          <div className="bg-white/5 p-4 rounded-xl mb-6">
-            <p className="text-xs text-white/50 mb-1">{isZh ? 'Agent ID' : 'Agent ID'}</p>
-            <p className="text-sm text-[#00FF00] break-all mb-4">{registerResult.agent_id}</p>
+          <div className="bg-white/5 p-4 rounded-xl mb-4">
+            <div className="mb-4">
+              <p className="text-xs text-white/50 mb-1">{isZh ? 'Agent ID' : 'Agent ID'}</p>
+              <div className="flex items-center gap-2">
+                <p className="text-sm text-[#00FF00] break-all flex-1">{registerResult.agent_id}</p>
+                <button
+                  onClick={() => copyToClipboard(registerResult.agent_id, 'id')}
+                  className="text-xs px-2 py-1 bg-white/10 rounded"
+                >
+                  {copied === 'id' ? '✓' : isZh ? '复制' : 'Copy'}
+                </button>
+              </div>
+            </div>
             
-            <p className="text-xs text-white/50 mb-1">{isZh ? 'API Key' : 'API Key'}</p>
-            <p className="text-xs text-[#00FF00] break-all mb-4">{registerResult.api_key}</p>
+            <div>
+              <p className="text-xs text-white/50 mb-1">{isZh ? 'API Key' : 'API Key'}</p>
+              <div className="flex items-center gap-2">
+                <p className="text-xs text-[#00FF00] break-all flex-1">{registerResult.api_key}</p>
+                <button
+                  onClick={() => copyToClipboard(registerResult.api_key, 'key')}
+                  className="text-xs px-2 py-1 bg-white/10 rounded"
+                >
+                  {copied === 'key' ? '✓' : isZh ? '复制' : 'Copy'}
+                </button>
+              </div>
+            </div>
           </div>
 
           <p className="text-xs text-white/40 mb-4">
@@ -167,7 +197,7 @@ export default function JoinPage() {
 
           {location && (
             <p className="text-xs text-white/40">
-              {isZh ? '位置: ' : 'Location: '}{location.city}, {location.country}
+              {isZh ? '位置: ' : 'Location: '}{location.city}, {location.country} ({location.lat.toFixed(4)}, {location.lng.toFixed(4)})
             </p>
           )}
 
