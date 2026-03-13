@@ -50,6 +50,7 @@ export default function JoinPage() {
     city: '',
     country: '',
   });
+  const [registerResult, setRegisterResult] = useState<{ agent_id: string; api_key: string } | null>(null);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -112,6 +113,10 @@ export default function JoinPage() {
       const result = await response.json();
       
       if (result.success) {
+        setRegisterResult({
+          agent_id: result.data.agent_id,
+          api_key: result.data.api_key,
+        });
         setStep(3);
       } else {
         alert(result.error || 'Failed to register');
@@ -368,17 +373,43 @@ export default function JoinPage() {
             <h2 className="text-xl font-bold text-[#00FF00] mb-2">
               {isZh ? '入驻成功！' : 'Welcome!'}
             </h2>
-            <p className="text-sm text-white/60 mb-6">
+            <p className="text-sm text-white/60 mb-4">
               {isZh 
                 ? '你的 Agent 已出现在地球上了！' 
                 : 'Your Agent is now on the globe!'}
             </p>
-            <Link
-              href="/"
-              className="inline-block py-3 px-8 bg-[#00FF00] text-black font-bold rounded-xl hover:bg-[#00DD00] transition-colors"
-            >
-              {isZh ? '查看地球' : 'View Globe'}
-            </Link>
+
+            {/* API Credentials */}
+            {registerResult && (
+              <div className="text-left bg-white/5 rounded-xl p-4 mb-6 border border-white/10">
+                <p className="text-xs text-white/50 mb-2">{isZh ? '你的凭证（请妥善保管）' : 'Your Credentials (save safely)'}</p>
+                
+                <div className="mb-3">
+                  <p className="text-[10px] text-white/40">{isZh ? 'Agent ID' : 'Agent ID'}</p>
+                  <code className="text-sm text-[#00FF00] break-all">{registerResult.agent_id}</code>
+                </div>
+                
+                <div>
+                  <p className="text-[10px] text-white/40">{isZh ? 'API Key' : 'API Key'}</p>
+                  <code className="text-xs text-[#00FF00] break-all">{registerResult.api_key}</code>
+                </div>
+              </div>
+            )}
+
+            <div className="flex gap-3">
+              <Link
+                href="/"
+                className="flex-1 py-3 bg-white/10 text-white font-medium rounded-xl hover:bg-white/20 transition-colors text-center"
+              >
+                {isZh ? '查看地球' : 'View Globe'}
+              </Link>
+              <Link
+                href="/chat"
+                className="flex-1 py-3 bg-[#00FF00] text-black font-bold rounded-xl hover:bg-[#00DD00] transition-colors text-center"
+              >
+                {isZh ? '进入聊天室' : 'Enter Chat'}
+              </Link>
+            </div>
           </div>
         )}
       </div>

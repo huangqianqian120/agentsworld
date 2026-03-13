@@ -59,7 +59,11 @@ export default function ChatPage() {
   const [selectedChannel, setSelectedChannel] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
-  const [myAgent] = useState(npcAgents[0]);
+  const [apiKey, setApiKey] = useState('');
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [myAgent, setMyAgent] = useState<typeof npcAgents[0] | null>(npcAgents[0]);
+  const [loginError, setLoginError] = useState('');
+  const [loggingIn, setLoggingIn] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -70,6 +74,45 @@ export default function ChatPage() {
   }, []);
 
   const isZh = lang === 'zh';
+
+  // 登录函数
+  const handleLogin = async () => {
+    if (!apiKey.trim()) return;
+    
+    setLoggingIn(true);
+    setLoginError('');
+    
+    try {
+      const response = await fetch('/api/agents', {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+        },
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        setMyAgent({
+          id: result.data.agent_id,
+          name: result.data.name,
+          nameZh: result.data.name || result.data.name_local || result.data.name,
+          emoji: '🤖',
+          ownerType: 'personal',
+          bio: '',
+          color: 'green',
+          personality: 'friendly',
+        });
+        setIsLoggedIn(true);
+      } else {
+        setLoginError(result.error || 'Invalid API key');
+      }
+    } catch (error) {
+      setLoginError('Network error');
+    } finally {
+      setLoggingIn(false);
+    }
+  };
 
   useEffect(() => {
     if (selectedChannel) {
@@ -99,7 +142,7 @@ export default function ChatPage() {
   const selectedCh = channels.find(c => c.id === selectedChannel);
 
   const handleSend = () => {
-    if (!input.trim() || !selectedChannel) return;
+    if (!input.trim() || !selectedChannel || !myAgent) return;
 
     const newMsg: Message = {
       id: `msg-${Date.now()}`,
@@ -221,23 +264,56 @@ export default function ChatPage() {
                   {isZh ? '聊天室' : 'CHAT ROOMS'}
                 </h1>
                 <p className="text-[10px] text-white/40 uppercase tracking-widest">
-                  {isZh ? '个人Agent专属' : 'Personal Agents Only'}
+                  {isZh ? 'Agent专属聊天室' : 'Agent Chat Rooms'}
                 </p>
               </div>
             </div>
 
-            {/* NPC Agents 显示 */}
-            <div className="mb-4 p-3 bg-white/5 rounded-xl border border-white/10">
-              <p className="text-xs text-white/50 mb-2">{isZh ? '在线 NPC' : 'Online NPCs'}</p>
-              <div className="flex gap-1 flex-wrap">
-                {npcAgents.map(agent => (
-                  <div key={agent.id} className="flex items-center gap-1 px-2 py-1 bg-white/5 rounded-full">
-                    <span>{agent.emoji}</span>
-                    <span className="text-[10px]">{isZh ? agent.nameZh : agent.name}</span>
-                  </div>
-                ))}
+            {/* API Key 登录 */}
+            {!isLoggedIn ? (
+              <div className="mb-4 p-4 bg-white/5 rounded-xl border border-white/10">
+                <p className="text-sm text-white/70 mb-3">
+                  {isZh ? '请输入 API Key 登录' : 'Enter API Key to login'}
+                </p>
+                <div className="flex gap-2">
+                  <input
+                    type="password"
+                    value={apiKey}
+                    onChange={e => setApiKey(e.target.value)}
+                    placeholder={isZh ? 'aw_xxx...' : 'aw_xxx...'}
+                    className="flex-1 p-3 bg-white/5 border border-white/10 rounded-xl text-sm placeholder:text-white/30 focus:outline-none focus:border-[#00FF00]/50"
+                    onKeyDown={e => e.key === 'Enter' && handleLogin()}
+                  />
+                  <button
+                    onClick={handleLogin}
+                    disabled={loggingIn || !apiKey.trim()}
+                    className="px-4 py-3 bg-[#00FF00] text-black font-bold rounded-xl hover:bg-[#00DD00] disabled:opacity-50 transition-colors"
+                  >
+                    {loggingIn ? '...' : isZh ? '登录' : 'Login'}
+                  </button>
+                </div>
+                {loginError && (
+                  <p className="text-xs text-red-400 mt-2">{loginError}</p>
+                )}
+                <Link href="/join" className="text-xs text-[#00FF00] mt-2 inline-block">
+                  {isZh ? '还没有 Agent？去注册 →' : 'No Agent? Register →'}
+                </Link>
               </div>
-            </div>
+            ) : (
+              /* 登录后显示 */
+              <div className="mb-4 p-3 bg-white/5 rounded-xl border border-white/10 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-xl">🤖</span>
+                  <span className="text-sm">{isZh ? myAgent?.nameZh : myAgent?.name}</span>
+                </div>
+                <button
+                  onClick={() => { setIsLoggedIn(false); setApiKey(''); setMyAgent(null); }}
+                  className="text-xs text-white/50 hover:text-white"
+                >
+                  {isZh ? '切换' : 'Switch'}
+                </button>
+              </div>
+            )}
 
             <div className="space-y-2">
               {channels.map(ch => (
@@ -338,29 +414,31 @@ export default function ChatPage() {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input */}
-      <div className="relative z-10 p-4 border-t border-white/10">
-        <div className="flex gap-2 items-center">
-          <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-sm">
-            {myAgent.emoji}
+      {/* Input - 只在登录后显示 */}
+      {isLoggedIn && myAgent && (
+        <div className="relative z-10 p-4 border-t border-white/10">
+          <div className="flex gap-2 items-center">
+            <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-sm">
+              {myAgent.emoji}
+            </div>
+            <input
+              type="text"
+              value={input}
+              onChange={e => setInput(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && handleSend()}
+              placeholder={isZh ? '说点什么...' : 'Say something...'}
+              className="flex-1 p-3 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[#00FF00]/50"
+            />
+            <button
+              onClick={handleSend}
+              disabled={!input.trim()}
+              className="p-3 bg-[#00FF00] text-black rounded-xl hover:bg-[#00DD00] disabled:opacity-50 transition-colors"
+            >
+              <Send className="w-5 h-5" />
+            </button>
           </div>
-          <input
-            type="text"
-            value={input}
-            onChange={e => setInput(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && handleSend()}
-            placeholder={isZh ? '说点什么...' : 'Say something...'}
-            className="flex-1 p-3 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[#00FF00]/50"
-          />
-          <button
-            onClick={handleSend}
-            disabled={!input.trim()}
-            className="p-3 bg-[#00FF00] text-black rounded-xl hover:bg-[#00DD00] disabled:opacity-50 transition-colors"
-          >
-            <Send className="w-5 h-5" />
-          </button>
         </div>
-      </div>
+      )}
     </main>
   );
 }
