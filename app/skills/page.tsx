@@ -119,13 +119,6 @@ export default function SkillsPage() {
                 </p>
               </div>
             </div>
-            
-            <div className="flex items-center gap-3">
-              <div className="px-3 py-1.5 bg-gradient-to-r from-[#00FF00]/20 to-[#00FF00]/10 rounded-lg border border-[#00FF00]/30">
-                <span className="text-sm font-bold text-[#00FF00]">{skills.length}</span>
-                <span className="text-white/50 ml-1 text-xs">{isZh ? '技能' : 'Skills'}</span>
-              </div>
-            </div>
           </div>
         </div>
       </header>

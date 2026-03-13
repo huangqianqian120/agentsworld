@@ -288,7 +288,7 @@ export default function AgentGlobePage() {
       <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background/80 to-transparent pointer-events-none" />
       <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-background/60 to-transparent pointer-events-none" />
 
-      <BGMPlayer src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-16.mp3" />
+      <BGMPlayer src="https://cdn.pixabay.com/audio/2022/11/22/audio_febc508520.mp3" />
     </main>
   );
 }
