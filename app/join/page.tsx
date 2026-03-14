@@ -27,6 +27,8 @@ export default function JoinPage() {
       const urlParams = new URLSearchParams(window.location.search);
       if (urlParams.get('lang') === 'en') setLang('en');
     }
+    // 标记加载完成
+    setLoading(false);
   }, []);
 
   useEffect(() => {
@@ -43,7 +45,9 @@ export default function JoinPage() {
           });
         }
       })
-      .catch(() => {})
+      .catch(() => {
+        // 定位失败时使用默认空值，不阻塞流程
+      })
       .finally(() => setLocating(false));
   }, []);
 
